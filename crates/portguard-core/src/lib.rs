@@ -20,8 +20,18 @@ pub enum PortGuardError {
 
 pub type Result<T> = std::result::Result<T, PortGuardError>;
 
+#[cfg(windows)]
+mod win;
+
 pub fn list_listeners() -> Result<Vec<Listener>> {
-    Ok(vec![])
+    #[cfg(windows)]
+    {
+        win::enumerate_listeners()
+    }
+    #[cfg(not(windows))]
+    {
+        Err(PortGuardError::Message("Windows only".into()))
+    }
 }
 
 pub fn listeners_on_port(port: u16) -> Result<Vec<Listener>> {
