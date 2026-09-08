@@ -1,0 +1,14 @@
+[[permission]]
+identifier = "allow-list-listeners"
+description = "Allows listing listening ports."
+commands.allow = ["list_listeners"]
+
+[[permission]]
+identifier = "allow-kill-pid"
+description = "Allows terminating a process by PID."
+commands.allow = ["kill_pid"]
+
+[[permission]]
+identifier = "allow-reveal-path"
+description = "Allows revealing a file path in Explorer."
+commands.allow = ["reveal_path"]
