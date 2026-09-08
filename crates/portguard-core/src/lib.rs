@@ -41,6 +41,12 @@ pub fn listeners_on_port(port: u16) -> Result<Vec<Listener>> {
 pub fn kill_pid(pid: u32) -> Result<()> {
     #[cfg(windows)]
     {
+        let listeners = list_listeners()?;
+        if !listeners.iter().any(|l| l.pid == pid) {
+            return Err(PortGuardError::Message(format!(
+                "PID {pid} is not owning a listening port"
+            )));
+        }
         win::terminate_pid(pid)
     }
     #[cfg(not(windows))]

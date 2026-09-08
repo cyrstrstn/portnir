@@ -11,8 +11,7 @@ fn kill_pid(pid: u32) -> Result<(), String> {
 #[tauri::command]
 fn reveal_path(path: String) -> Result<(), String> {
     std::process::Command::new("explorer")
-        .arg("/select,")
-        .arg(&path)
+        .arg(format!("/select,{path}"))
         .spawn()
         .map_err(|e| e.to_string())?;
     Ok(())
@@ -21,7 +20,6 @@ fn reveal_path(path: String) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             list_listeners,
             kill_pid,
