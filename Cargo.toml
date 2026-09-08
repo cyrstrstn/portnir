@@ -3,4 +3,5 @@ resolver = "2"
 members = [
   "crates/portguard-core",
   "crates/portguard-cli",
+  "apps/desktop/src-tauri",
 ]
