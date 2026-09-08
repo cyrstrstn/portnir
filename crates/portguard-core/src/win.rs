@@ -1,14 +1,17 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::path::Path;
 
-use windows::Win32::Foundation::{CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS};
+use windows::Win32::Foundation::{
+    CloseHandle, ERROR_ACCESS_DENIED, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS,
+};
 use windows::Win32::NetworkManagement::IpHelper::{
     GetExtendedTcpTable, GetExtendedUdpTable, MIB_TCP6ROW_OWNER_PID, MIB_TCPROW_OWNER_PID,
     MIB_UDP6ROW_OWNER_PID, MIB_UDPROW_OWNER_PID, TCP_TABLE_OWNER_PID_LISTENER, UDP_TABLE_OWNER_PID,
 };
 use windows::Win32::Networking::WinSock::{AF_INET, AF_INET6};
 use windows::Win32::System::Threading::{
-    OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
+    OpenProcess, QueryFullProcessImageNameW, TerminateProcess, PROCESS_NAME_WIN32,
+    PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_TERMINATE,
 };
 
 use crate::{Listener, PortGuardError, Result};
@@ -20,6 +23,33 @@ pub fn enumerate_listeners() -> Result<Vec<Listener>> {
     collect_udp4(&mut out)?;
     collect_udp6(&mut out)?;
     Ok(out)
+}
+
+pub fn terminate_pid(pid: u32) -> Result<()> {
+    unsafe {
+        let handle = match OpenProcess(PROCESS_TERMINATE, false, pid) {
+            Ok(h) => h,
+            Err(e) => {
+                if e.code() == ERROR_ACCESS_DENIED.into() {
+                    return Err(PortGuardError::Message(
+                        "Access denied — try Administrator".into(),
+                    ));
+                }
+                return Err(PortGuardError::Message(format!("OpenProcess failed: {e}")));
+            }
+        };
+        let result = TerminateProcess(handle, 1);
+        let _ = CloseHandle(handle);
+        match result {
+            Ok(()) => Ok(()),
+            Err(e) if e.code() == ERROR_ACCESS_DENIED.into() => Err(PortGuardError::Message(
+                "Access denied — try Administrator".into(),
+            )),
+            Err(e) => Err(PortGuardError::Message(format!(
+                "TerminateProcess failed: {e}"
+            ))),
+        }
+    }
 }
 
 fn collect_tcp4(out: &mut Vec<Listener>) -> Result<()> {

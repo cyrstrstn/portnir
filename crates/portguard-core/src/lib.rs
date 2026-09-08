@@ -38,6 +38,14 @@ pub fn listeners_on_port(port: u16) -> Result<Vec<Listener>> {
     Ok(list_listeners()?.into_iter().filter(|l| l.port == port).collect())
 }
 
-pub fn kill_pid(_pid: u32) -> Result<()> {
-    Err(PortGuardError::Message("not implemented".into()))
+pub fn kill_pid(pid: u32) -> Result<()> {
+    #[cfg(windows)]
+    {
+        win::terminate_pid(pid)
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = pid;
+        Err(PortGuardError::Message("Windows only".into()))
+    }
 }

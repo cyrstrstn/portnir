@@ -32,12 +32,60 @@ enum Commands {
 fn main() {
     let cli = Cli::parse();
     match cli.cmd {
-        Commands::List { .. } => println!("[]"),
-        Commands::Check { port, .. } => println!("nothing listening on {port}"),
-        Commands::Kill { yes, .. } if !yes => {
-            eprintln!("refusing kill without --yes");
-            std::process::exit(2);
+        Commands::List { json, tcp, udp } => {
+            let mut rows = portguard_core::list_listeners().unwrap_or_else(|e| {
+                eprintln!("{e}");
+                std::process::exit(1);
+            });
+            if tcp && !udp {
+                rows.retain(|r| r.protocol == "TCP");
+            }
+            if udp && !tcp {
+                rows.retain(|r| r.protocol == "UDP");
+            }
+            if json {
+                println!("{}", serde_json::to_string_pretty(&rows).unwrap());
+            } else {
+                for r in rows {
+                    println!(
+                        "{}\t{}\tpid={}\t{}\t{}",
+                        r.protocol,
+                        r.local_addr,
+                        r.pid,
+                        r.process_name,
+                        r.path.clone().unwrap_or_default()
+                    );
+                }
+            }
         }
-        Commands::Kill { .. } => eprintln!("not implemented"),
+        Commands::Check { port, json } => {
+            let rows = portguard_core::listeners_on_port(port).unwrap_or_else(|e| {
+                eprintln!("{e}");
+                std::process::exit(1);
+            });
+            if json {
+                println!("{}", serde_json::to_string_pretty(&rows).unwrap());
+            } else if rows.is_empty() {
+                println!("nothing listening on {port}");
+            } else {
+                for r in rows {
+                    println!(
+                        "{}\t{}\tpid={}\t{}",
+                        r.protocol, r.local_addr, r.pid, r.process_name
+                    );
+                }
+            }
+        }
+        Commands::Kill { pid, yes } => {
+            if !yes {
+                eprintln!("refusing kill without --yes");
+                std::process::exit(2);
+            }
+            if let Err(e) = portguard_core::kill_pid(pid) {
+                eprintln!("{e}");
+                std::process::exit(1);
+            }
+            println!("killed pid {pid}");
+        }
     }
 }
