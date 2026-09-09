@@ -23,18 +23,12 @@ jobs:
           cache: npm
           cache-dependency-path: apps/desktop/package-lock.json
 
-      - name: Install WebView2 (if needed)
-        shell: powershell
-        run: |
-          # windows-latest usually has WebView2; ensure evergreen bootstrapper available
-          Write-Host "WebView2 check skipped — runner includes Edge/WebView2"
-
       - name: Build release package
-        shell: powershell
+        shell: pwsh
         run: .\scripts\build-release.ps1
 
       - name: Publish GitHub release
-        shell: powershell
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

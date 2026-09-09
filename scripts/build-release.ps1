@@ -12,12 +12,12 @@ $cargoBin = Join-Path $env:USERPROFILE '.cargo\bin'
 $env:PATH = "$cargoBin;$env:PATH"
 
 $version = (Select-String -Path (Join-Path $root 'apps\desktop\src-tauri\tauri.conf.json') -Pattern '"version"\s*:\s*"([^"]+)"').Matches[0].Groups[1].Value
-Write-Host "Building Portnir $version…" -ForegroundColor Cyan
+Write-Host "Building Portnir $version..." -ForegroundColor Cyan
 
-Write-Host '→ cargo build -p portnir-cli --release'
+Write-Host 'cargo build -p portnir-cli --release'
 cargo build -p portnir-cli --release
 
-Write-Host '→ npm install + tauri build'
+Write-Host 'npm install + tauri build'
 Push-Location (Join-Path $root 'apps\desktop')
 try {
   if (-not (Test-Path 'node_modules')) {
