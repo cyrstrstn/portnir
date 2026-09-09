@@ -1,12 +1,15 @@
 <div align="center">
 
+<img src="docs/brand/portnir-logo.png" alt="Portnir logo" width="128" height="128" />
+
 # Portnir
 
 ### See what is listening on your Windows PC — without drowning in netstat noise.
 
 [![Latest release](https://img.shields.io/github/v/release/cyrstrstn/portnir?style=flat-square&color=b7ff3c)](https://github.com/cyrstrstn/portnir/releases/latest)
+[![Release build](https://img.shields.io/github/actions/workflow/status/cyrstrstn/portnir/release.yml?style=flat-square&label=release)](https://github.com/cyrstrstn/portnir/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/github/license/cyrstrstn/portnir?style=flat-square)](LICENSE)
-[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=flat-square&logo=windows)](https://github.com/cyrstrstn/portnir)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=flat-square&logo=windows)](https://github.com/cyrstrstn/portnir/releases/latest)
 [![No telemetry](https://img.shields.io/badge/telemetry-none-success?style=flat-square)](#privacy-and-safety)
 [![Rust + Tauri](https://img.shields.io/badge/stack-Rust%20%2B%20Tauri%202-171815?style=flat-square)](#why-portnir)
 
@@ -14,71 +17,90 @@
 
 Portnir (port + Norse *-nir*) answers: *which process owns this local port?* Local machine only — no remote scanning, no accounts, no telemetry.
 
-[Build](#build-from-source) · [Desktop](#desktop-app) · [CLI](#commands) · [Privacy](#privacy-and-safety) · [Releases](https://github.com/cyrstrstn/portnir/releases)
+[Install](#one-command-install) · [Screenshot](#screenshot) · [Scripts blocked?](#if-scripts-are-blocked-executionpolicy) · [Commands](#commands) · [Build](#build-from-source) · [Releases](https://github.com/cyrstrstn/portnir/releases)
 
 </div>
 
 ---
 
-## Build from source
+## Screenshot
 
-Portnir is currently installed by cloning and building. A one-command / portable zip installer is planned for a later release (same idea as [SystemSage](https://github.com/cyrstrstn/systemsage)).
+<div align="center">
 
-### Prerequisites
+![Portnir desktop — listening ports table](docs/screenshots/portnir-desktop.png)
 
-| Tool | Purpose |
-|---|---|
-| [Rust](https://rustup.rs/) (stable) | Core, CLI, Tauri backend — put `%USERPROFILE%\.cargo\bin` on `PATH` |
-| [Node.js](https://nodejs.org/) (LTS) | Vite + React UI |
-| [WebView2](https://developer.microsoft.com/microsoft-edge/webview2/) | Tauri window (usually already on Windows 10/11) |
-| MSVC C++ Build Tools | Link Windows crates (*Desktop development with C++*) |
+<sub>Desktop UI: filter listeners, switch themes, visit / copy / folder / kill</sub>
 
-```powershell
-git clone https://github.com/cyrstrstn/portnir.git
-cd portnir
-$env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
-```
+</div>
 
-### Desktop app
+---
+
+## One-command install
+
+Open **Windows PowerShell** and paste:
 
 ```powershell
-.\scripts\dev-desktop.ps1
+irm https://raw.githubusercontent.com/cyrstrstn/portnir/main/scripts/irm-install.ps1 | iex
 ```
 
-This starts Vite and the Tauri window together (stable on Windows). Use the **Portnir** desktop window — do **not** open `http://127.0.0.1:1420` in Chrome; that URL is only the Vite shell and will fail `invoke`.
+Open a **new** terminal, then:
+
+```powershell
+Portnir          # desktop UI
+portnir list     # CLI
+```
 
 > [!NOTE]
-> Prefer `.\scripts\dev-desktop.ps1` over bare `npm run tauri dev`. On Windows, Tauri can tear down Vite and leave a blank “localhost refused” window.
+> Installation is per-user and does **not** need Administrator. Files go under `%LOCALAPPDATA%\Programs\Portnir`, and your user `PATH` is updated. The remote installer runs **in memory** (it does not leave a blocked `.ps1` on disk). Requires a published GitHub release that includes `Portnir-Windows.zip`.
 
-### CLI
+### If scripts are blocked (ExecutionPolicy)
 
-```powershell
-cargo run -p portnir-cli -- list
-cargo run -p portnir-cli -- check 3000
-cargo run -p portnir-cli -- list --json
-```
+Some PCs show errors like:
 
-Release CLI binary:
+- `running scripts is disabled on this system`
+- `File cannot be loaded because running scripts is disabled`
+- `UnauthorizedAccess` / ExecutionPolicy
 
-```powershell
-cargo build -p portnir-cli --release
-# → target\release\portnir.exe
-```
-
-### Smoke test
+Use this **one paste** instead. It only bypasses policy for that install command. It does **not** permanently change your PC policy:
 
 ```powershell
-.\scripts\dev-check.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/cyrstrstn/portnir/main/scripts/irm-install.ps1 | iex"
 ```
 
-Expect `PASS core+cli`.
+**Windows Terminal / PowerShell tip:** paste the whole line, press Enter, wait until you see `Portnir installed successfully`, then open a **new** tab/window before running `Portnir` / `portnir`.
+
+You do **not** need `Set-ExecutionPolicy RemoteSigned` (or any permanent policy change) to install Portnir.
+
+### Update
+
+Run the same install command again (normal `irm ... | iex`, or the Bypass line if scripts are blocked). It downloads and installs the latest GitHub release.
+
+### Manual installation
+
+1. Download [`Portnir-Windows.zip`](https://github.com/cyrstrstn/portnir/releases/latest/download/Portnir-Windows.zip) from [Releases](https://github.com/cyrstrstn/portnir/releases/latest).
+2. Or grab **`Portnir-Setup.exe`** (NSIS installer) from the same release if you prefer a classic setup wizard.
+3. Extract the zip, then open PowerShell **in that folder** and run:
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+   ```
+   If scripts are not blocked on your PC, `.\install.ps1` also works.
+
+Zip contents:
+
+| File | Purpose |
+|---|---|
+| `Portnir.exe` | Desktop UI |
+| `portnir.exe` | CLI |
+| `LICENSE` / `README.md` | Docs |
+| `install.ps1` | Local installer |
 
 ## Why Portnir?
 
 | | Portnir |
 |---|---|
 | Focus | Listening TCP / UDP binds (not every established connection) |
-| UI | Tauri 2 + React desktop app |
+| Distribution | Zip + optional Setup.exe from GitHub Releases |
+| UI | Tauri 2 + React (system WebView2) |
 | CLI | Matching `portnir` binary |
 | Themes | terminal · slate · paper · amber |
 | Background service | None |
@@ -87,7 +109,7 @@ Expect `PASS core+cli`.
 | Kill | Confirm in GUI, or `--yes` on CLI — listener PIDs only |
 | License | MIT |
 
-Portnir uses a shared Rust core (`portnir-core`). The GUI and CLI call the same enumeration and kill logic. System WebView2 is used for the UI (not a bundled Electron/Chromium runtime).
+Portnir uses a shared Rust core (`portnir-core`). The GUI and CLI call the same enumeration and kill logic.
 
 ## What it shows
 
@@ -117,6 +139,15 @@ Toolbar:
 
 Select a row for **visit**, **copy**, **folder**, and **kill**. Accent-colored local addresses are clickable when visit is allowed.
 
+For local development from a clone, prefer:
+
+```powershell
+.\scripts\dev-desktop.ps1
+```
+
+> [!NOTE]
+> Prefer `.\scripts\dev-desktop.ps1` over bare `npm run tauri dev`. On Windows, Tauri can tear down Vite and leave a blank “localhost refused” window. Do **not** open `http://127.0.0.1:1420` in Chrome for normal use.
+
 ## Commands
 
 | Command | Purpose |
@@ -131,12 +162,10 @@ Select a row for **visit**, **copy**, **folder**, and **kill**. Accent-colored l
 | `portnir --help` | Show help |
 | `portnir --version` | Print version |
 
-Examples while developing from the repo:
-
 ```powershell
-cargo run -p portnir-cli -- list --tcp
-cargo run -p portnir-cli -- check 135
-cargo run -p portnir-cli -- kill 12345 --yes
+portnir list --tcp
+portnir check 135
+portnir kill 12345 --yes
 ```
 
 ## Privacy and safety
@@ -149,15 +178,47 @@ cargo run -p portnir-cli -- kill 12345 --yes
 - Enumeration is read-only. Kill only runs when you confirm in the UI or pass `--yes` on the CLI, and only for PIDs that currently own a listening endpoint.
 - **Visit** only opens `http(s)` to loopback or private LAN hosts.
 
+## Build from source
+
+### Prerequisites
+
+| Tool | Purpose |
+|---|---|
+| [Rust](https://rustup.rs/) (stable) | Core, CLI, Tauri backend — put `%USERPROFILE%\.cargo\bin` on `PATH` |
+| [Node.js](https://nodejs.org/) (LTS) | Vite + React UI |
+| [WebView2](https://developer.microsoft.com/microsoft-edge/webview2/) | Tauri window |
+| MSVC C++ Build Tools | Link Windows crates (*Desktop development with C++*) |
+
+```powershell
+git clone https://github.com/cyrstrstn/portnir.git
+cd portnir
+$env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
+.\scripts\dev-check.ps1
+.\scripts\dev-desktop.ps1
+```
+
+### Make a release zip locally
+
+```powershell
+.\scripts\build-release.ps1
+# → release\Portnir-Windows.zip
+# → release\Portnir-Setup.exe  (if NSIS built)
+```
+
+Tagging `v*` on GitHub runs the same packaging in CI and publishes a release.
+
 ## Project structure
 
 ```text
 apps/desktop/                 Tauri 2 + React + TypeScript UI
 crates/portnir-core/          Windows IP Helper enumerate + kill
 crates/portnir-cli/           portnir CLI binary
+scripts/irm-install.ps1       Public one-command installation entry point
+scripts/install.ps1           Local and GitHub release installer
+scripts/build-release.ps1     Zip + Setup packaging
 scripts/dev-desktop.ps1       Stable Vite + Tauri launcher
 scripts/dev-check.ps1         Core tests + CLI smoke
-docs/                         Design notes and plans
+.github/workflows/release.yml Tagged-release automation
 ```
 
 ## Contributing
