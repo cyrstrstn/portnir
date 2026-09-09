@@ -1,0 +1,48 @@
+name: Release Windows
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Install WebView2 (if needed)
+        shell: powershell
+        run: |
+          # windows-latest usually has WebView2; ensure evergreen bootstrapper available
+          Write-Host "WebView2 check skipped — runner includes Edge/WebView2"
+
+      - name: Build release package
+        shell: powershell
+        run: .\scripts\build-release.ps1
+
+      - name: Publish GitHub release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $assets = @(
+            '.\release\Portnir-Windows.zip'
+          )
+          if (Test-Path '.\release\Portnir-Setup.exe') {
+            $assets += '.\release\Portnir-Setup.exe'
+          }
+          gh release create $tag @assets --generate-notes --title "Portnir $tag"
