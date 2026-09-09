@@ -675,7 +675,7 @@ dependencies = [
 name = "desktop"
 version = "0.1.0"
 dependencies = [
- "portguard-core",
+ "portnir-core",
  "serde",
  "serde_json",
  "tauri",
@@ -2411,16 +2411,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "portguard-cli"
+name = "portnir-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
- "portguard-core",
+ "portnir-core",
  "serde_json",
 ]
 
 [[package]]
-name = "portguard-core"
+name = "portnir-core"
 version = "0.1.0"
 dependencies = [
  "serde",

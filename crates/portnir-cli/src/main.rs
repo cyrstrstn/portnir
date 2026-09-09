@@ -1,7 +1,7 @@
-use clap::{Parser, Subcommand};
+﻿use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "portguard", version, about = "List local listening ports")]
+#[command(name = "portnir", version, about = "List local listening ports")]
 struct Cli {
     #[command(subcommand)]
     cmd: Commands,
@@ -33,7 +33,7 @@ fn main() {
     let cli = Cli::parse();
     match cli.cmd {
         Commands::List { json, tcp, udp } => {
-            let mut rows = portguard_core::list_listeners().unwrap_or_else(|e| {
+            let mut rows = portnir_core::list_listeners().unwrap_or_else(|e| {
                 eprintln!("{e}");
                 std::process::exit(1);
             });
@@ -59,7 +59,7 @@ fn main() {
             }
         }
         Commands::Check { port, json } => {
-            let rows = portguard_core::listeners_on_port(port).unwrap_or_else(|e| {
+            let rows = portnir_core::listeners_on_port(port).unwrap_or_else(|e| {
                 eprintln!("{e}");
                 std::process::exit(1);
             });
@@ -81,7 +81,7 @@ fn main() {
                 eprintln!("refusing kill without --yes");
                 std::process::exit(2);
             }
-            if let Err(e) = portguard_core::kill_pid(pid) {
+            if let Err(e) = portnir_core::kill_pid(pid) {
                 eprintln!("{e}");
                 std::process::exit(1);
             }

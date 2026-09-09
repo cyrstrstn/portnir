@@ -1,20 +1,21 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "PortGuard",
+  "productName": "Portnir",
   "version": "0.1.0",
-  "identifier": "com.portguard.app",
+  "identifier": "com.portnir.app",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://127.0.0.1:1420",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
     "windows": [
       {
-        "title": "PortGuard",
-        "width": 800,
-        "height": 600
+        "title": "Portnir",
+        "width": 1100,
+        "height": 720,
+        "minWidth": 800,
+        "minHeight": 520
       }
     ],
     "security": {

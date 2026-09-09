@@ -1,4 +1,4 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
+﻿use std::net::{Ipv4Addr, Ipv6Addr};
 use std::path::Path;
 
 use windows::Win32::Foundation::{
@@ -14,7 +14,7 @@ use windows::Win32::System::Threading::{
     PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_TERMINATE,
 };
 
-use crate::{Listener, PortGuardError, Result};
+use crate::{Listener, PortnirError, Result};
 
 pub fn enumerate_listeners() -> Result<Vec<Listener>> {
     let mut out = Vec::new();
@@ -31,21 +31,21 @@ pub fn terminate_pid(pid: u32) -> Result<()> {
             Ok(h) => h,
             Err(e) => {
                 if e.code() == ERROR_ACCESS_DENIED.into() {
-                    return Err(PortGuardError::Message(
-                        "Access denied — try Administrator".into(),
+                    return Err(PortnirError::Message(
+                        "Access denied â€” try Administrator".into(),
                     ));
                 }
-                return Err(PortGuardError::Message(format!("OpenProcess failed: {e}")));
+                return Err(PortnirError::Message(format!("OpenProcess failed: {e}")));
             }
         };
         let result = TerminateProcess(handle, 1);
         let _ = CloseHandle(handle);
         match result {
             Ok(()) => Ok(()),
-            Err(e) if e.code() == ERROR_ACCESS_DENIED.into() => Err(PortGuardError::Message(
-                "Access denied — try Administrator".into(),
+            Err(e) if e.code() == ERROR_ACCESS_DENIED.into() => Err(PortnirError::Message(
+                "Access denied â€” try Administrator".into(),
             )),
-            Err(e) => Err(PortGuardError::Message(format!(
+            Err(e) => Err(PortnirError::Message(format!(
                 "TerminateProcess failed: {e}"
             ))),
         }
@@ -227,7 +227,7 @@ where
         return Ok(Vec::new());
     }
     if status != ERROR_INSUFFICIENT_BUFFER.0 {
-        return Err(PortGuardError::Message(format!(
+        return Err(PortnirError::Message(format!(
             "GetExtended*Table size query failed: {status}"
         )));
     }
@@ -240,12 +240,12 @@ where
             return Ok(buf);
         }
         if status != ERROR_INSUFFICIENT_BUFFER.0 {
-            return Err(PortGuardError::Message(format!(
+            return Err(PortnirError::Message(format!(
                 "GetExtended*Table failed: {status}"
             )));
         }
     }
-    Err(PortGuardError::Message(
+    Err(PortnirError::Message(
         "GetExtended*Table buffer race exhausted".into(),
     ))
 }

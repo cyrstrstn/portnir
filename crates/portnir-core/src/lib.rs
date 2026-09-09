@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+﻿use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -13,12 +13,12 @@ pub struct Listener {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum PortGuardError {
+pub enum PortnirError {
     #[error("{0}")]
     Message(String),
 }
 
-pub type Result<T> = std::result::Result<T, PortGuardError>;
+pub type Result<T> = std::result::Result<T, PortnirError>;
 
 #[cfg(windows)]
 mod win;
@@ -30,7 +30,7 @@ pub fn list_listeners() -> Result<Vec<Listener>> {
     }
     #[cfg(not(windows))]
     {
-        Err(PortGuardError::Message("Windows only".into()))
+        Err(PortnirError::Message("Windows only".into()))
     }
 }
 
@@ -43,7 +43,7 @@ pub fn kill_pid(pid: u32) -> Result<()> {
     {
         let listeners = list_listeners()?;
         if !listeners.iter().any(|l| l.pid == pid) {
-            return Err(PortGuardError::Message(format!(
+            return Err(PortnirError::Message(format!(
                 "PID {pid} is not owning a listening port"
             )));
         }
@@ -52,6 +52,6 @@ pub fn kill_pid(pid: u32) -> Result<()> {
     #[cfg(not(windows))]
     {
         let _ = pid;
-        Err(PortGuardError::Message("Windows only".into()))
+        Err(PortnirError::Message("Windows only".into()))
     }
 }

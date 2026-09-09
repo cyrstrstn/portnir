@@ -12,3 +12,8 @@ commands.allow = ["kill_pid"]
 identifier = "allow-reveal-path"
 description = "Allows revealing a file path in Explorer."
 commands.allow = ["reveal_path"]
+
+[[permission]]
+identifier = "allow-open-http-url"
+description = "Allows opening http(s) URLs to loopback or private LAN hosts."
+commands.allow = ["open_http_url"]

@@ -1,13 +1,13 @@
 [package]
-name = "portguard-cli"
+name = "portnir-cli"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "portguard"
+name = "portnir"
 path = "src/main.rs"
 
 [dependencies]
-portguard-core = { path = "../portguard-core" }
+portnir-core = { path = "../portnir-core" }
 clap = { version = "4", features = ["derive"] }
 serde_json = "1"
