@@ -43,15 +43,20 @@ Open **Windows PowerShell** and paste:
 irm https://raw.githubusercontent.com/cyrstrstn/portnir/main/scripts/irm-install.ps1 | iex
 ```
 
-Open a **new** terminal, then:
+That downloads **`Portnir-Setup.exe`** from the [latest GitHub Release](https://github.com/cyrstrstn/portnir/releases/latest) and starts the Setup wizard.
+
+Or download the installer directly:
+
+[`Portnir-Setup.exe`](https://github.com/cyrstrstn/portnir/releases/latest/download/Portnir-Setup.exe)
+
+After Setup finishes, open **Portnir** from the Start menu, or run:
 
 ```powershell
-Portnir          # desktop UI
 portnir list     # CLI
 ```
 
 > [!NOTE]
-> Installation is per-user and does **not** need Administrator. Files go under `%LOCALAPPDATA%\Programs\Portnir`, and your user `PATH` is updated. The remote installer runs **in memory** (it does not leave a blocked `.ps1` on disk). Requires a published GitHub release that includes `Portnir-Windows.zip`.
+> The one-liner only fetches the public installer script (jsDelivr / GitHub), then downloads `Portnir-Setup.exe` from Releases. No permanent ExecutionPolicy change.
 
 ### If scripts are blocked (ExecutionPolicy)
 
@@ -67,19 +72,19 @@ Use this **one paste** instead. It only bypasses policy for that install command
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/cyrstrstn/portnir/main/scripts/irm-install.ps1 | iex"
 ```
 
-**Windows Terminal / PowerShell tip:** paste the whole line, press Enter, wait until you see `Portnir installed successfully`, then open a **new** tab/window before running `Portnir` / `portnir`.
+**Windows Terminal / PowerShell tip:** paste the whole line, press Enter, finish the Setup wizard, then open Portnir from Start.
 
 You do **not** need `Set-ExecutionPolicy RemoteSigned` (or any permanent policy change) to install Portnir.
 
 ### Update
 
-Run the same install command again (normal `irm ... | iex`, or the Bypass line if scripts are blocked). It downloads and installs the latest GitHub release.
+Download / run the latest [`Portnir-Setup.exe`](https://github.com/cyrstrstn/portnir/releases/latest/download/Portnir-Setup.exe), or run the same `irm … | iex` one-liner again.
 
-### Manual installation
+### Manual / portable installation
 
-1. Download [`Portnir-Windows.zip`](https://github.com/cyrstrstn/portnir/releases/latest/download/Portnir-Windows.zip) from [Releases](https://github.com/cyrstrstn/portnir/releases/latest).
-2. Or grab **`Portnir-Setup.exe`** (NSIS installer) from the same release if you prefer a classic setup wizard.
-3. Extract the zip, then open PowerShell **in that folder** and run:
+1. Download [`Portnir-Setup.exe`](https://github.com/cyrstrstn/portnir/releases/latest/download/Portnir-Setup.exe) (recommended), **or**
+2. Download [`Portnir-Windows.zip`](https://github.com/cyrstrstn/portnir/releases/latest/download/Portnir-Windows.zip) for a portable folder.
+3. For the zip: extract, then open PowerShell **in that folder** and run:
    ```powershell
    powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
    ```
@@ -92,7 +97,7 @@ Zip contents:
 | `Portnir.exe` | Desktop UI |
 | `portnir.exe` | CLI |
 | `LICENSE` / `README.md` | Docs |
-| `install.ps1` | Local installer |
+| `install.ps1` | Local portable installer |
 
 ## Why Portnir?
 
